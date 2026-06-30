@@ -1,52 +1,58 @@
-import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
+import {
+  Body, Controller, Get, Param, Post, Put, Delete, Query,
+  NotFoundException, ParseIntPipe // Importamos Delete, NotFoundException y ParseIntPipe
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-
-// @Get("all")      // Get /user/all
-// @Get(":id")      // Get /user/:id
-// @Post()          // Post /user
-// @Put(":id")      // Put /user/:id
-// @Delete(":id")   // Delete /user/:id
+import { UserService } from './user.service';
+import type { User } from './user.service';
 
 @Controller('user')
 export class UserController {
+
+  constructor(private readonly userservice: UserService) { }
+
   // GET /user
   @Get()
-  getUsers(@Query("name") name: string) {
-    const users = [
-      { id: 1, name: "John" },
-      { id: 2, name: "Adrian" }
-    ]
-
-    if (name) {
-      return users.filter((user) =>
-        user.name.toLowerCase().includes(name.toLowerCase()))
-    }
-
-    return users
+  getUsers(@Query("name") name: string = ""): User[] {
+    return this.userservice.findAllUsers(name);
   }
 
+  // GET /user/:id
   @Get(":id")
-  getUserById(@Param("id") id: string) {
-    return {
-      id,
-      name: "John Doe"
+  getUserById(@Param("id", ParseIntPipe) id: number): User {
+    const user = this.userservice.findOneUser(id);
+
+    if (!user) {
+      throw new NotFoundException(`User with id ${id} not found`);
     }
+
+    return user;
   }
 
+  // POST /user
   @Post()
-  createUser(@Body() createUserDto: CreateUserDto) {
-    return {
-      data: createUserDto,
-      message: "User created successfully"
-    }
+  createUser(@Body() createUserDto: CreateUserDto): User {
+    return this.userservice.createUser(createUserDto);
   }
 
+  // PUT /user/:id
   @Put(":id")
-  updateUser(@Param("id") id: string, @Body() updateUserDto: UpdateUserDto) {
-    return {
-      data: { id, ...updateUserDto },
-      message: "User updated successfully"
+  updateUser(@Param("id", ParseIntPipe) id: number, @Body() updateUserDto: UpdateUserDto): User {
+    const updatedUser = this.userservice.updateUser(id, updateUserDto);
+
+    if (!updatedUser) {
+      throw new NotFoundException(`User with id ${id} not found`);
     }
+
+    return updatedUser;
+  }
+
+  // DELETE /user/:id  <-- ¡Este método faltaba en tu código original!
+  @Delete(":id")
+  deleteUser(@Param("id", ParseIntPipe) id: number): User {
+    // En este caso, tu servicio deleteUser YA lanza la NotFoundException internamente,
+    // por lo que en el controlador solo nos limitamos a llamarlo y retornar el resultado.
+    return this.userservice.deleteUser(id);
   }
 }

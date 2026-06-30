@@ -51,7 +51,7 @@ export class UserController {
   // DELETE /user/:id  <-- ¡Este método faltaba en tu código original!
   @Delete(":id")
   deleteUser(@Param("id", ParseIntPipe) id: number): User {
-    // En este caso, tu servicio deleteUser YA lanza la NotFoundException internamente,
+    // En este caso, el servicio deleteUser YA lanza la NotFoundException internamente,
     // por lo que en el controlador solo nos limitamos a llamarlo y retornar el resultado.
     return this.userservice.deleteUser(id);
   }

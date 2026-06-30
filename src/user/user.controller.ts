@@ -1,11 +1,13 @@
 import {
   Body, Controller, Get, Param, Post, Put, Delete, Query,
-  NotFoundException, ParseIntPipe // Importamos Delete, NotFoundException y ParseIntPipe
+  NotFoundException, ParseIntPipe, // Importamos Delete, NotFoundException y ParseIntPipe
+  UseGuards
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserService } from './user.service';
 import type { User } from './user.service';
+import { RoleGuard } from 'src/guards/role.guard';
 
 @Controller('user')
 export class UserController {
@@ -50,6 +52,7 @@ export class UserController {
 
   // DELETE /user/:id 
   @Delete(":id")
+  @UseGuards(RoleGuard) // Solo con role="admin" funcionará
   deleteUser(@Param("id", ParseIntPipe) id: number): User {
     // En este caso, el servicio deleteUser YA lanza la NotFoundException internamente,
     // por lo que en el controlador solo nos limitamos a llamarlo y retornar el resultado.

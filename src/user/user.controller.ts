@@ -48,7 +48,7 @@ export class UserController {
     return updatedUser;
   }
 
-  // DELETE /user/:id  <-- ¡Este método faltaba en tu código original!
+  // DELETE /user/:id 
   @Delete(":id")
   deleteUser(@Param("id", ParseIntPipe) id: number): User {
     // En este caso, el servicio deleteUser YA lanza la NotFoundException internamente,
